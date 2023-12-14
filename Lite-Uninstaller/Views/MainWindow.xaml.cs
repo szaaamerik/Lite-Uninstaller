@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Lite_Uninstaller.ViewModels;
+using Lite_Uninstaller.Views.Pages;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 
@@ -67,7 +68,7 @@ public partial class MainWindow : INavigationWindow
         }
 
         _paneToggledFromCode = true;
-        NavigationView.IsPaneOpen = e.NewSize.Width > 1200;
+        NavigationView.SetCurrentValue(NavigationView.IsPaneOpenProperty, e.NewSize.Width > 1200);
         _paneToggledFromCode = false;
     }
 

@@ -7,9 +7,9 @@
         xmlns:views="clr-namespace:Lite_Uninstaller.Views"
         mc:Ignorable="d"
         Title="MainWindow" 
-        MinHeight="540"
+        MinHeight="600"
         MinWidth="960" 
-        Height="540"
+        Height="600"
         Width="960"
 
         d:DataContext="{d:DesignInstance views:MainWindow, IsDesignTimeCreatable=False}"

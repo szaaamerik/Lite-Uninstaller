@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:local="clr-namespace:Lite_Uninstaller.Views.Pages"
+      xmlns:models="clr-namespace:Lite_Uninstaller.Models"
       mc:Ignorable="d"
       Title="UninstallSoftwarePage"      
       d:DesignHeight="600"
@@ -45,20 +46,22 @@
             </Grid.ColumnDefinitions>
             
             <ui:AutoSuggestBox x:Name="AutoSuggestBox" 
+                               IsEnabled="{Binding ViewModel.NoBackgroundActionsRunning}"
                                PlaceholderText="Filter visible applications" 
                                Padding="10 5 10 5"
                                Margin="0 0 10 0"
                                KeyDown="AutoSuggestBox_OnKeyDown"/>
             
             <ui:TextBlock Grid.Column="1"
+                          IsEnabled="{Binding ViewModel.NoBackgroundActionsRunning}"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Center"
                           FontTypography="BodyStrong"
                           Margin="0 0 10 0"
-                          Text="Application type:"/>
+                          Text="App type:"/>
             
             <ComboBox Grid.Column="2"
-                      IsEnabled="{Binding ViewModel.IsInitialized}"
+                      IsEnabled="{Binding ViewModel.NoBackgroundActionsRunning}"
                       Padding="10,5,10,5"
                       Margin="0 0 10 0"
                       SelectedIndex="0">
@@ -81,21 +84,25 @@
             
             
             <ComboBox Grid.Column="4"
-                      IsEnabled="{Binding ViewModel.IsInitialized}"
+                      IsEnabled="{Binding ViewModel.NoBackgroundActionsRunning}"
                       Margin="0 0 10 0"
                       Padding="10,5,10,5"
                       SelectedIndex="0">
             
-                <ComboBoxItem Content="Name"/>
-                <ComboBoxItem Content="Size"/>
-                <ComboBoxItem Content="Publisher"/>
-                <ComboBoxItem Content="Install date"/>
+                <ComboBoxItem Content="Name (A - Z)"/>
+                <ComboBoxItem Content="Name (Z - A)"/>
+                <ComboBoxItem Content="Publisher (A - Z)"/>
+                <ComboBoxItem Content="Publisher (Z - A)"/>
+                <ComboBoxItem Content="Size (low - high)"/>
+                <ComboBoxItem Content="Size (high - low)"/>
+                <ComboBoxItem Content="Install date (older - newer)"/>
+                <ComboBoxItem Content="Install date (newer - older)"/>
                 
             </ComboBox>
 
             <ui:Button Grid.Column="7"
                        Padding="10,5,10,5"
-                       IsEnabled="{Binding ViewModel.IsInitialized}"
+                       IsEnabled="{Binding ViewModel.NoBackgroundActionsRunning}"
                        Content=""
                        ToolTip="Refresh">
             
@@ -116,9 +123,189 @@
             
             </Grid.ColumnDefinitions>
 
+            <Grid Column="0">
+                            
+                <Border Margin="0 10 0 25"
+                        Padding="16"
+                        IsEnabled="{Binding ViewModel.NoBackgroundActionsRunning}"
+                        Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                        CornerRadius="5">
+                    
+                    <Grid x:Name="AppInfoGrid">
 
+                        <StackPanel>
+                        
+                            <StackPanel Orientation="Horizontal">
+
+                                <Border Background="Aquamarine"
+                                        CornerRadius="5"
+                                        Width="25"
+                                        Height="25"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"/>
+
+                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Name}"
+                                              TextWrapping="Wrap"
+                                              FontTypography="BodyStrong"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"
+                                              Margin="10 4 0 0"/>
+                            </StackPanel>
+                            
+                            <ui:HyperlinkButton Content="Uninstall"
+                                                HorizontalAlignment="Left"
+                                                Margin="-10 8 0 0"
+                                                IsEnabled="{Binding ViewModel.NoBackgroundActionsRunning}"
+                                                Cursor="Hand">
+                                <ui:HyperlinkButton.Icon>
+                                    <ui:SymbolIcon Symbol="Delete16"/>
+                                </ui:HyperlinkButton.Icon>
+                            </ui:HyperlinkButton>           
+                            
+                            <ui:HyperlinkButton Content="Absolute Elimination"
+                                                HorizontalAlignment="Left"
+                                                Margin="-10 0 0 0"
+                                                IsEnabled="{Binding ViewModel.NoBackgroundActionsRunning}"
+                                                Cursor="Hand">
+                                <ui:HyperlinkButton.Icon>
+                                    <ui:SymbolIcon Symbol="Dismiss12"/>
+                                </ui:HyperlinkButton.Icon>
+                            </ui:HyperlinkButton>
+
+                            <ui:TextBlock Text="App Info"
+                                          FontTypography="Subtitle"
+                                          Margin="0 8 0 0"/>
+                            
+                            <StackPanel Margin="0 8 0 0">
+
+                                <ui:TextBlock Text="Version: "
+                                              TextWrapping="Wrap"
+                                              FontTypography="BodyStrong"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+
+                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Version}"
+                                              TextWrapping="Wrap"
+                                              FontTypography="Body"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+                                
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 0">
+
+                                <ui:TextBlock Text="Publisher: "
+                                              TextWrapping="Wrap"
+                                              FontTypography="BodyStrong"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+                                
+                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Publisher}"
+                                              TextWrapping="Wrap"
+                                              FontTypography="Body"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+                                
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 0">
+
+                                <ui:TextBlock Text="Installation Date: "
+                                              TextWrapping="Wrap"
+                                              FontTypography="BodyStrong"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+                                
+                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.InstallDate}"
+                                              TextWrapping="Wrap"
+                                              FontTypography="Body"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+                                
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 0">
+
+                                <ui:TextBlock Text="Install Path: "
+                                              TextWrapping="Wrap"
+                                              FontTypography="BodyStrong"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+
+                                <TextBlock Text="{Binding ViewModel.SelectedApp.InstallPath}"
+                                           Foreground="{ui:ThemeResource AccentTextFillColorTertiaryBrush}"
+                                           Cursor="Hand"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"/>
+                                
+                            </StackPanel>
+
+                            <StackPanel Margin="0 8 0 0">
+
+                                <ui:TextBlock Text="App Type: "
+                                              TextWrapping="Wrap"
+                                              FontTypography="BodyStrong"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+
+                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Type}"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+                                
+                            </StackPanel>
+
+                        </StackPanel>
+                    
+                    </Grid>
+                
+                </Border>
+                
+            </Grid>
+
+            <Grid Column="1" Margin="5 10 0 25">
+                
+                <ScrollViewer MaxHeight="{Binding ActualHeight, ElementName=AppInfoGrid, Converter={StaticResource OffsetConverter}, ConverterParameter=30}">
+                    
+                    <ListView ItemsSource="{Binding ViewModel.AppsList}" SelectedIndex="0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:App}">
+                                <Border Padding="15"
+                                        Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                                        CornerRadius="5">
+                                    
+                                    <Grid>
+                                        
+                                        <StackPanel Orientation="Horizontal">
+                                                
+                                            
+                                            <Border Background="Aquamarine" 
+                                                    Height="25" 
+                                                    Width="25" 
+                                                    CornerRadius="5"
+                                                    HorizontalAlignment="Left" 
+                                                    VerticalAlignment="Center"/>
+                                            
+                                            <ui:TextBlock HorizontalAlignment="Left" Margin="10,5,0,5" Text="{Binding Name}"/>
+                                                
+                                            
+                                        </StackPanel>
+                                        
+                                        <ui:TextBlock HorizontalAlignment="Right" Margin="0,5,0,5" Text="{Binding AppSizeInGigaBytes}"/>
+                                        
+                                    </Grid>
+                                    
+                                </Border>
+                                
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    
+                </ScrollViewer>
+            </Grid>
+            
         </Grid>
             
-        
     </Grid>
 </Page>
