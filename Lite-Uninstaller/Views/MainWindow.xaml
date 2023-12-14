@@ -4,9 +4,63 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:views="clr-namespace:Lite_Uninstaller.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" 
+        MinHeight="540"
+        MinWidth="960" 
+        Height="540"
+        Width="960"
+
+        d:DataContext="{d:DesignInstance views:MainWindow, IsDesignTimeCreatable=False}"
+        
+        ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+        ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        
+        ExtendsContentIntoTitleBar="True"
+        
+        WindowCornerPreference="Default"
+        WindowStartupLocation="CenterScreen"
+        
+        SizeChanged="MainWindow_OnSizeChanged">
     <Grid>
+        
+        <ui:TitleBar
+            x:Name="TitleBar"
+            Title="{Binding ViewModel.ApplicationTitle}"
+            Grid.Row="0"
+            UseLayoutRounding="True">
+        </ui:TitleBar>
+        
+        <ui:NavigationView
+            x:Name="NavigationView"
+            Padding="42,0,42,0"
+            BreadcrumbBar="{Binding ElementName=BreadcrumbBar}"
+            FooterMenuItemsSource="{Binding ViewModel.FooterItems, Mode=OneWay}"
+            MenuItemsSource="{Binding ViewModel.MainItems, Mode=OneWay}"
+            TitleBar="{Binding ElementName=TitleBar, Mode=OneWay}"
+            PaneClosed="NavigationView_OnPaneClosed"
+            PaneOpened="NavigationView_OnPaneOpened"
+            FrameMargin="0"
+            OpenPaneLength="180"
+            IsBackButtonVisible="Visible"
+            IsPaneToggleVisible="True"
+            PaneDisplayMode="LeftMinimal">
+            
+            <ui:NavigationView.Header>
+                <StackPanel Margin="42,32,42,20">
+                    <ui:BreadcrumbBar x:Name="BreadcrumbBar" />
+                </StackPanel>
+            </ui:NavigationView.Header>
+            
+            <ui:NavigationView.ContentOverlay>
+                <Grid>
+                    <ui:SnackbarPresenter x:Name="SnackbarPresenter" />
+                </Grid>
+            </ui:NavigationView.ContentOverlay>
+        </ui:NavigationView>
+        
+        <ContentPresenter x:Name="RootContentDialog" Grid.Row="0" />
         
     </Grid>
 </ui:FluentWindow>
