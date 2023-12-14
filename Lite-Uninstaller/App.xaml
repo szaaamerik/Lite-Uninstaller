@@ -14,7 +14,6 @@
             </ResourceDictionary.MergedDictionaries>
             
             <helpers:OffsetConverter x:Key="OffsetConverter"/>
-            <helpers:DivideConverter x:Key="DivideConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

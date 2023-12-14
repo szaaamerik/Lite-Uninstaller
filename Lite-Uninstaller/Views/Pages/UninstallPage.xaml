@@ -118,7 +118,7 @@
             
             <Grid.ColumnDefinitions>
             
-                <ColumnDefinition Width="{Binding ActualWidth, ElementName=ListGrid, Converter={StaticResource DivideConverter}, ConverterParameter=3}"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             
             </Grid.ColumnDefinitions>
@@ -265,9 +265,9 @@
 
             <Grid x:Name="ListGrid" Column="1" Margin="5 10 0 25">
                 
-                <ScrollViewer MaxHeight="{Binding ActualHeight, ElementName=AppInfoGrid, Converter={StaticResource OffsetConverter}, ConverterParameter=30}">
+                <ScrollViewer MaxHeight="{Binding ActualHeight, ElementName=AppInfoGrid, Converter={StaticResource OffsetConverter}, ConverterParameter=30, UpdateSourceTrigger=PropertyChanged}">
                     
-                    <ListView ItemsSource="{Binding ViewModel.AppsList}" SelectedIndex="0">
+                    <ListView VirtualizingStackPanel.IsVirtualizing="True" ItemsSource="{Binding ViewModel.AppsList}" SelectedIndex="0">
                         <ListView.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:App}">
                                 <Border Padding="15"
@@ -287,12 +287,12 @@
                                                     HorizontalAlignment="Left" 
                                                     VerticalAlignment="Center"/>
                                             
-                                            <ui:TextBlock HorizontalAlignment="Left" Margin="10,5,0,5" Text="{Binding Name}"/>
+                                            <ui:TextBlock HorizontalAlignment="Left" Margin="10,5,0,5" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
                                                 
                                             
                                         </StackPanel>
                                         
-                                        <ui:TextBlock HorizontalAlignment="Right" Margin="0,5,0,5" Text="{Binding AppSizeInGigaBytes}"/>
+                                        <ui:TextBlock HorizontalAlignment="Right" Margin="0,5,0,5" Text="{Binding AppSizeInGigaBytes, UpdateSourceTrigger=PropertyChanged}"/>
                                         
                                     </Grid>
                                     
