@@ -162,14 +162,14 @@
                 Margin="0,0,0,0"
                 Padding="4"
                 Content="GitHub Repository"
-                NavigateUri="https://github.com/ForzaMods/Mod-Manager"
-                ToolTip="https://github.com/ForzaMods/Mod-Manager" />
+                NavigateUri=""
+                ToolTip="" />
             <ui:HyperlinkButton
                 Margin="0,0,0,0"
                 Padding="4"
                 Content="Report an issue"
-                NavigateUri="https://github.com/ForzaMods/Mod-Manager/issues/new?assignees=&amp;labels=bug&amp;projects=&amp;template=bug_report.yml&amp;title=%5BBug%5D%3A+"
-                ToolTip="https://github.com/ForzaMods/Mod-Manager/issues/new" />
+                NavigateUri=""
+                ToolTip="" />
         </StackPanel>
 
     </Grid>
