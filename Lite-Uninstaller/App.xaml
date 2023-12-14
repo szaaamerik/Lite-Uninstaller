@@ -4,7 +4,8 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              xmlns:helpers="clr-namespace:Lite_Uninstaller.Helpers"
              Startup="App_OnStartup"
-             Exit="App_OnExit">
+             Exit="App_OnExit"
+             DispatcherUnhandledException="App_OnDispatcherUnhandledException">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -13,6 +14,7 @@
             </ResourceDictionary.MergedDictionaries>
             
             <helpers:OffsetConverter x:Key="OffsetConverter"/>
+            <helpers:DivideConverter x:Key="DivideConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

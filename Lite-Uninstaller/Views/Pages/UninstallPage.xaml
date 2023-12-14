@@ -118,7 +118,7 @@
             
             <Grid.ColumnDefinitions>
             
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="{Binding ActualWidth, ElementName=ListGrid, Converter={StaticResource DivideConverter}, ConverterParameter=3}"/>
                 <ColumnDefinition Width="*"/>
             
             </Grid.ColumnDefinitions>
@@ -263,7 +263,7 @@
                 
             </Grid>
 
-            <Grid Column="1" Margin="5 10 0 25">
+            <Grid x:Name="ListGrid" Column="1" Margin="5 10 0 25">
                 
                 <ScrollViewer MaxHeight="{Binding ActualHeight, ElementName=AppInfoGrid, Converter={StaticResource OffsetConverter}, ConverterParameter=30}">
                     

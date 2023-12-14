@@ -38,9 +38,9 @@ public partial class UninstallPageViewModel : ObservableObject, INavigationAware
 
     private async void InitializeViewModel()
     {
-        var alphabet = GenerateRandomStrings(100, 5, 10);
+        var alphabet = GenerateRandomStrings(50, 5, 10);
         var enumerable = alphabet.ToArray();
-        var dataMods = enumerable.Select(t => new Models.App()
+        var dataMods = enumerable.Select(t => new Models.App
         {
             Name = t,
         }).ToList();
