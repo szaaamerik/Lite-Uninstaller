@@ -42,7 +42,7 @@
                 Padding="0"
                 VerticalAlignment="Stretch"
                 Command="{Binding ViewModel.PageSwitchCommand, Mode=OneWay}"
-                CommandParameter="uninstall_software"
+                CommandParameter="remove_software"
                 IsChevronVisible="False">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -63,7 +63,7 @@
                         <ui:TextBlock
                             Margin="0"
                             FontTypography="BodyStrong"
-                            Text="Uninstall Software"
+                            Text="Remove Software"
                             TextWrapping="WrapWithOverflow" />
                         <ui:TextBlock
                             Appearance="Secondary"

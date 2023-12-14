@@ -17,7 +17,7 @@ public partial class HomePageViewModel(INavigationService navigationService) : O
     {
         switch (parameter)
         {
-            case "uninstall_software":
+            case "remove_software":
             {
                 navigationService.Navigate(typeof(UninstallPage));                
                 break;
@@ -31,7 +31,7 @@ public partial class HomePageViewModel(INavigationService navigationService) : O
 
             case "settings":
             {
-                //navigationService.Navigate(typeof(SettingsPage));
+                navigationService.Navigate(typeof(SettingsPage));
                 break;
             }
 

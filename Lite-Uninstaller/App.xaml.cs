@@ -35,6 +35,8 @@ public partial class App
             services.AddSingleton<HomePage>();
             services.AddSingleton<UninstallPageViewModel>();
             services.AddSingleton<UninstallPage>();
+            services.AddSingleton<SettingsPageViewModel>();
+            services.AddSingleton<SettingsPage>();
             services.AddSingleton<AboutPage>();
         }).Build();
     

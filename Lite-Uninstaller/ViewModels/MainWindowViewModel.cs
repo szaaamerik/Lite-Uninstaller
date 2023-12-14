@@ -43,7 +43,7 @@ public partial class MainWindowViewModel : ObservableObject
             },
             new NavigationViewItem
             {
-                Content = "Uninstall Software",
+                Content = "Remove Software",
                 Icon = new SymbolIcon {Symbol = SymbolRegular.Recycle20 },
                 TargetPageType = typeof(UninstallPage)
             }
@@ -61,6 +61,7 @@ public partial class MainWindowViewModel : ObservableObject
             {
                 Content = "Settings",
                 Icon = new SymbolIcon { Symbol = SymbolRegular.Settings24 },
+                TargetPageType = typeof(SettingsPage)
             }
         ];
 

@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
+﻿namespace Lite_Uninstaller.Views.Pages;
 
-namespace Lite_Uninstaller.Views.Pages;
-
-public partial class AboutPage : Page
+public partial class AboutPage
 {
     public AboutPage()
     {

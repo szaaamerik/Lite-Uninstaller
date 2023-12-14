@@ -7,6 +7,7 @@ public class App
         Unknown = 0,
         UWP,
         Hidden,
+        System,
         Desktop
     }
 
@@ -16,7 +17,6 @@ public class App
     public string? InstallPath { get; init; } = "Unknown";
     public AppType Type { get; init; } = AppType.Unknown;
 
-    public bool IsSystemApp { get; init; } = false;
     public bool IsStartupApp { get; init; } = false;
 
     public string? ImageSource { get; init; } = "";
