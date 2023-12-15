@@ -1,4 +1,6 @@
-﻿namespace Lite_Uninstaller.Models;
+﻿using System.Windows.Media.Imaging;
+
+namespace Lite_Uninstaller.Models;
 
 public class App
 {
@@ -19,10 +21,8 @@ public class App
 
     public bool IsStartupApp { get; init; } = false;
 
-    public string? ImageSource { get; init; } = "";
+    public BitmapSource? ImageSource { get; init; }
 
-    public string? InstalledDate { get; init; } = "Unknown";
-
-    public string? AppSize { get; init; }
-    public long AppSizeLong { get; init; } = 0L;
+    public string? InstalledDateString { get; init; } = "Unknown";
+    public DateTime InstalledDate { get; init; }
 }

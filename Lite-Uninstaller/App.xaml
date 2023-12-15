@@ -15,6 +15,7 @@
             
             <helpers:OffsetConverter x:Key="OffsetConverter"/>
             <helpers:DivideConverter x:Key="DivideConverter"/>
+            <helpers:BoolConverter x:Key="BoolConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

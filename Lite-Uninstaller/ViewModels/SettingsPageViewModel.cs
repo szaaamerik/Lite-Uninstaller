@@ -1,6 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Lite_Uninstaller.Views.Pages;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 

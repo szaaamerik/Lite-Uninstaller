@@ -12,7 +12,13 @@
     <ItemGroup>
       <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+      <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+      <PackageReference Include="System.Management" Version="8.0.0" />
       <PackageReference Include="WPF-UI" Version="3.0.0-preview.13" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Assets\FallbackIcon.png" />
     </ItemGroup>
 
 </Project>

@@ -24,12 +24,15 @@ public partial class UninstallPage : INavigableView<UninstallPageViewModel>
         ViewModel.SortAppsList(SortByComboBox.SelectedIndex);
     }
 
-    private void Refresh_OnClick(object sender, RoutedEventArgs e)
+    private async void Refresh_OnClick(object sender, RoutedEventArgs e)
     {
         _textModifiedFromCode = true;
         AutoSuggestBox.Text = "";
         _textModifiedFromCode = false;
-        ViewModel.SetupList();
+        var taskCompletionSource = new TaskCompletionSource<bool>();
+        await ViewModel.SetupList(taskCompletionSource);
+        await taskCompletionSource.Task;
+        ListView.SelectedIndex = 0;
     }
 
     private void AutoSuggestBox_OnTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -44,11 +47,28 @@ public partial class UninstallPage : INavigableView<UninstallPageViewModel>
 
     private async void RefreshListWithFilter(string text = "")
     {
-        //ViewModel.NoBackgroundActionsRunning = false;
         var taskCompletionSource = new TaskCompletionSource<bool>();
         ViewModel.LoadList(taskCompletionSource, text);
         await taskCompletionSource.Task;
+        ListView.SelectedIndex = 0;
         ViewModel.SortAppsList(SortByComboBox.SelectedIndex == 0 ? 0 : SortByComboBox.SelectedIndex = 0);
-        //ViewModel.NoBackgroundActionsRunning = true;    
+    }
+
+    private void ListView_OnSelectionChanged(object sender, RoutedEventArgs e)
+    {
+        ViewModel.NoAppSelected = ListView.SelectedItem == null;
+        ViewModel.MultipleAppsSelected = ListView.SelectedItems.Count > 1;
+        
+        if (ListView.SelectedIndex < 0)
+        {
+            return;
+        }
+        
+        ViewModel.SelectedApp = ViewModel.AppsList[ListView.SelectedIndex];
+    }
+
+    private void PathLabel_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        UninstallPageViewModel.OpenInstallPath(PathLabel.Text);
     }
 }

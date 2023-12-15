@@ -1,10 +1,14 @@
 ﻿using System.Collections.ObjectModel;
-using System.Globalization;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Win32;
 using Wpf.Ui.Controls;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 
 namespace Lite_Uninstaller.ViewModels;
 
@@ -28,6 +32,12 @@ public partial class UninstallPageViewModel : ObservableObject, INavigationAware
     [ObservableProperty] 
     private ObservableCollection<string> _appNames = [];
 
+    [ObservableProperty] 
+    private bool _multipleAppsSelected;
+    
+    [ObservableProperty] 
+    private bool _noAppSelected;
+
     public UninstallPageViewModel()
     {
         if (IsInitialized)
@@ -47,22 +57,27 @@ public partial class UninstallPageViewModel : ObservableObject, INavigationAware
 
     private async void InitializeViewModel()
     {
-        await SetupList();
+        var taskCompletionSource = new TaskCompletionSource<bool>();
+        await SetupList(taskCompletionSource);
+        await taskCompletionSource.Task;
         IsInitialized = NoBackgroundActionsRunning = true;
     }
 
-    public Task SetupList()
+    public Task SetupList(TaskCompletionSource<bool> taskCompletionSource)
     {
-        return Task.Run(() =>
+        BatchedAppsList.Clear();
+        
+        foreach (var app in GetWin32Apps())
         {
-
-            foreach (var app in GetWin32Apps())
-            {
+            Application.Current.Dispatcher.InvokeAsync(() =>
+            {   
                 BatchedAppsList.Add(app);
-            }
-            
-            LoadList();
-        });
+            }).Wait();
+        }
+        
+        LoadList();
+        taskCompletionSource.SetResult(true);
+        return Task.CompletedTask;
     }
 
     // https://stackoverflow.com/a/58147170/22198018
@@ -100,26 +115,48 @@ public partial class UninstallPageViewModel : ObservableObject, INavigationAware
                 using var sk = rk.OpenSubKey(skName);
                 try
                 {
-                    var tryParse = int.TryParse(sk.GetValue("InstallDate").ToString(), out var numericDate);
-                    var dateTime = "Unknown";
+                    DateTime dateTime;
+                    string dateTimeString;
 
-                    if (tryParse)
+                    try
                     {
+                        int.TryParse(sk.GetValue("InstallDate").ToString(), out var numericDate);
                         var year = numericDate / 10000;
                         var month = numericDate / 100 % 100;
                         var day = numericDate % 100;
-                        dateTime = new DateTime(year, month, day).ToShortDateString();
+                        dateTime = new DateTime(year, month, day);
+                        dateTimeString = dateTime.ToShortDateString();
                     }
-
+                    catch
+                    {
+                        dateTime = new DateTime(1969, 12, 1);
+                        dateTimeString = "Unknown";
+                    }
+                    
+                    BitmapSource? iconBitmapSource;
+                    
+                    try
+                    {
+                        var iconParse = (sk.GetValue("DisplayIcon") as string)?.Replace(",0", "");
+                        var appIcon = Icon.ExtractAssociatedIcon(iconParse!);
+                        iconBitmapSource = Imaging.CreateBitmapSourceFromHIcon(appIcon!.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    }
+                    catch (Exception)
+                    {
+                        var explorerPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");
+                        var defaultExeIcon = Icon.ExtractAssociatedIcon(explorerPath);
+                        iconBitmapSource = Imaging.CreateBitmapSourceFromHIcon(defaultExeIcon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    }
+                    
                     var app = new Models.App
                     {
                         Name = Convert.ToString(sk.GetValue("DisplayName")),
                         Publisher = sk.GetValue("Publisher") as string ?? "Unknown",
                         Version = Convert.ToString(sk.GetValue("DisplayVersion")),
                         InstallPath = Convert.ToString(sk.GetValue("InstallLocation")),
-                        AppSize = sk.GetValue("EstimatedSize") is int sizeValue ? sizeValue.ToString() : "Unknown",
-                        AppSizeLong = Convert.ToInt64(sk.GetValue("EstimatedSize")),
+                        ImageSource = iconBitmapSource,
                         InstalledDate = dateTime,
+                        InstalledDateString = dateTimeString,
                         Type = Models.App.AppType.Desktop
                     };
 
@@ -176,35 +213,6 @@ public partial class UninstallPageViewModel : ObservableObject, INavigationAware
 
         taskCompletionSource.SetResult(true);
     }
-    
-    private static List<string> GenerateRandomStrings(int numberOfStrings, int minLength, int maxLength)
-    {
-        var randomStrings = new List<string>();
-        var random = new Random();
-
-        for (var i = 0; i < numberOfStrings; i++)
-        {
-            var stringLength = random.Next(minLength, maxLength + 1);
-            var randomString = GenerateRandomString(stringLength);
-            randomStrings.Add(randomString);
-        }
-
-        return randomStrings;
-    }
-    
-    private static string GenerateRandomString(int length)
-    {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        var random = new Random();
-
-        var randomString = new char[length];
-        for (var i = 0; i < length; i++)
-        {
-            randomString[i] = chars[random.Next(chars.Length)];
-        }
-
-        return new string(randomString);
-    }
 
     public void SortAppsList(int parameter)
     {
@@ -217,13 +225,21 @@ public partial class UninstallPageViewModel : ObservableObject, INavigationAware
             2 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.Name)),
             3 => new ObservableCollection<Models.App>(AppsList.OrderBy(app => app.Publisher)),
             4 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.Publisher)),
-            5 => new ObservableCollection<Models.App>(AppsList.OrderBy(app => app.AppSizeLong)),
-            6 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.AppSizeLong)),
-            7 => new ObservableCollection<Models.App>(AppsList.OrderBy(app => app.InstalledDate)),
-            8 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.InstalledDate)),
+            5 => new ObservableCollection<Models.App>(AppsList.OrderBy(app => app.InstalledDate)),
+            6 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.InstalledDate)),
             _ => AppsList
         };
 
         NoBackgroundActionsRunning = true;
+    }
+
+    public static void OpenInstallPath(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            return;
+        }
+
+        Process.Start("explorer.exe", path);
     }
 }

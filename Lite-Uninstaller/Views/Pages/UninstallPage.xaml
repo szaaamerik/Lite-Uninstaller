@@ -97,8 +97,6 @@
                 <ComboBoxItem Content="Name (Z - A)"/>
                 <ComboBoxItem Content="Publisher (A - Z)"/>
                 <ComboBoxItem Content="Publisher (Z - A)"/>
-                <ComboBoxItem Content="Size (Increasing)"/>
-                <ComboBoxItem Content="Size (Decreasing)"/>
                 <ComboBoxItem Content="Install date (Ascending)"/>
                 <ComboBoxItem Content="Install date (Descending)"/>
                 
@@ -143,122 +141,199 @@
                         
                             <StackPanel Orientation="Horizontal">
 
-                                <Border Background="Aquamarine"
-                                        CornerRadius="5"
-                                        Width="25"
-                                        Height="25"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"/>
+                                <ui:Image Source="{Binding ViewModel.SelectedApp.ImageSource}"
+                                          CornerRadius="5"
+                                          Width="25"
+                                          Height="25"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"/>
 
-                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Name}"
-                                              TextWrapping="Wrap"
-                                              FontTypography="BodyStrong"
+                                <ui:TextBlock TextWrapping="NoWrap"
+                                              TextTrimming="CharacterEllipsis"
+                                              Width="180"
                                               HorizontalAlignment="Left"
                                               VerticalAlignment="Center"
-                                              Margin="10 4 0 0"/>
+                                              Margin="10 4 0 0">
+                                
+                                    <ui:TextBlock.Style>
+                                        <Style TargetType="ui:TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ViewModel.MultipleAppsSelected}" Value="True">
+                                                    <Setter Property="Text" Value="Multiple Apps Selected"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ViewModel.NoAppSelected}" Value="True">
+                                                    <Setter Property="Text" Value="No App Selected"/>
+                                                </DataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding ViewModel.NoAppSelected}" Value="False"/>
+                                                        <Condition Binding="{Binding ViewModel.MultipleAppsSelected}" Value="False"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Text" Value="{Binding ViewModel.SelectedApp.Name}"/>
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:TextBlock.Style>
+                                    
+                                </ui:TextBlock>
                             </StackPanel>
                             
                             <ui:HyperlinkButton Content="Uninstall"
                                                 HorizontalAlignment="Left"
                                                 Margin="-10 8 0 0"
-                                                IsEnabled="{Binding ViewModel.NoBackgroundActionsRunning}"
                                                 Cursor="Hand">
+                                
+                                <ui:HyperlinkButton.IsEnabled>
+                                    <MultiBinding Converter="{StaticResource BoolConverter}">
+                                        <Binding Path="ViewModel.NoBackgroundActionsRunning"/>
+                                        <Binding Path="ViewModel.NoAppSelected"/>
+                                    </MultiBinding>
+                                </ui:HyperlinkButton.IsEnabled>
+                                
                                 <ui:HyperlinkButton.Icon>
                                     <ui:SymbolIcon Symbol="Delete16"/>
                                 </ui:HyperlinkButton.Icon>
+                                
                             </ui:HyperlinkButton>           
                             
                             <ui:HyperlinkButton Content="Absolute Elimination"
                                                 HorizontalAlignment="Left"
                                                 Margin="-10 0 0 0"
-                                                IsEnabled="{Binding ViewModel.NoBackgroundActionsRunning}"
                                                 Cursor="Hand">
+                                                                
+                                <ui:HyperlinkButton.IsEnabled>
+                                    <MultiBinding Converter="{StaticResource BoolConverter}">
+                                        <Binding Path="ViewModel.NoBackgroundActionsRunning"/>
+                                        <Binding Path="ViewModel.NoAppSelected"/>
+                                    </MultiBinding>
+                                </ui:HyperlinkButton.IsEnabled>
+                                
                                 <ui:HyperlinkButton.Icon>
                                     <ui:SymbolIcon Symbol="Dismiss12"/>
                                 </ui:HyperlinkButton.Icon>
                             </ui:HyperlinkButton>
 
-                            <ui:TextBlock Text="App Info"
-                                          FontTypography="Subtitle"
-                                          Margin="0 8 0 0"/>
-                            
-                            <StackPanel Margin="0 8 0 0">
-
-                                <ui:TextBlock Text="Version: "
-                                              TextWrapping="Wrap"
-                                              FontTypography="BodyStrong"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"/>
-
-                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Version}"
-                                              TextWrapping="Wrap"
-                                              FontTypography="Body"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"/>
+                            <StackPanel>
                                 
-                            </StackPanel>
-
-                            <StackPanel Margin="0 8 0 0">
-
-                                <ui:TextBlock Text="Publisher: "
-                                              TextWrapping="Wrap"
-                                              FontTypography="BodyStrong"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"/>
+                                <StackPanel.Style>
+                                    
+                                    <Style TargetType="StackPanel">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ViewModel.MultipleAppsSelected}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ViewModel.NoAppSelected}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
                                 
-                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Publisher}"
-                                              TextWrapping="Wrap"
-                                              FontTypography="Body"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"/>
+                                <ui:TextBlock Text="App Info"
+                                              FontTypography="Subtitle"
+                                              Margin="0 8 0 0"/>
                                 
-                            </StackPanel>
+                                <StackPanel Margin="0 8 0 0">
+                                    
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ViewModel.SelectedApp.Version}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    
+                                    <ui:TextBlock Text="Version: "
+                                                  TextWrapping="Wrap"
+                                                  FontTypography="BodyStrong"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"/>
 
-                            <StackPanel Margin="0 8 0 0">
+                                    <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Version}"
+                                                  TextWrapping="Wrap"
+                                                  FontTypography="Body"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"/>
+                                    
+                                </StackPanel>
 
-                                <ui:TextBlock Text="Installation Date: "
-                                              TextWrapping="Wrap"
-                                              FontTypography="BodyStrong"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"/>
-                                
-                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.InstalledDate}"
-                                              TextWrapping="Wrap"
-                                              FontTypography="Body"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"/>
-                                
-                            </StackPanel>
+                                <StackPanel Margin="0 8 0 0">
 
-                            <StackPanel Margin="0 8 0 0">
+                                    <ui:TextBlock Text="Publisher: "
+                                                  TextWrapping="Wrap"
+                                                  FontTypography="BodyStrong"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"/>
+                                    
+                                    <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Publisher}"
+                                                  TextWrapping="Wrap"
+                                                  FontTypography="Body"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"/>
+                                    
+                                </StackPanel>
 
-                                <ui:TextBlock Text="Install Path: "
-                                              TextWrapping="Wrap"
-                                              FontTypography="BodyStrong"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"/>
+                                <StackPanel Margin="0 8 0 0">
 
-                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.InstallPath}"
-                                           Foreground="{ui:ThemeResource AccentTextFillColorTertiaryBrush}"
-                                           TextWrapping="NoWrap"
-                                           TextTrimming="CharacterEllipsis"
-                                           Cursor="Hand"
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Center"/>
-                                
-                            </StackPanel>
+                                    <ui:TextBlock Text="Installation Date: "
+                                                  TextWrapping="Wrap"
+                                                  FontTypography="BodyStrong"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"/>
+                                    
+                                    <ui:TextBlock Text="{Binding ViewModel.SelectedApp.InstalledDateString}"
+                                                  TextWrapping="Wrap"
+                                                  FontTypography="Body"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"/>
+                                    
+                                </StackPanel>
 
-                            <StackPanel Margin="0 8 0 0">
+                                <StackPanel Margin="0 8 0 0">
+                                    
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ViewModel.SelectedApp.InstallPath}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    
+                                    <ui:TextBlock Text="Install Path: "
+                                                  TextWrapping="Wrap"
+                                                  FontTypography="BodyStrong"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"/>
 
-                                <ui:TextBlock Text="App Type: "
-                                              TextWrapping="Wrap"
-                                              FontTypography="BodyStrong"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"/>
+                                    <ui:TextBlock x:Name="PathLabel" 
+                                                  Text="{Binding ViewModel.SelectedApp.InstallPath}"
+                                                  Foreground="{ui:ThemeResource AccentTextFillColorTertiaryBrush}"
+                                                  TextWrapping="NoWrap"
+                                                  TextTrimming="CharacterEllipsis"
+                                                  Cursor="Hand"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"
+                                                  MouseDown="PathLabel_OnMouseDown"/>
+                                    
+                                </StackPanel>
 
-                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Type}"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"/>
+                                <StackPanel Margin="0 8 0 0">
+
+                                    <ui:TextBlock Text="App Type: "
+                                                  TextWrapping="Wrap"
+                                                  FontTypography="BodyStrong"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"/>
+
+                                    <ui:TextBlock Text="{Binding ViewModel.SelectedApp.Type}"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"/>
+                                    
+                                </StackPanel>
                                 
                             </StackPanel>
 
@@ -272,9 +347,9 @@
 
             <Grid Column="1" Margin="5 10 0 25">
                 
-                <ScrollViewer x:Name="ListViewer" MaxHeight="{Binding ActualHeight, ElementName=AppInfoGrid, Converter={StaticResource OffsetConverter}, ConverterParameter=30, UpdateSourceTrigger=PropertyChanged}">
+                <ScrollViewer MaxHeight="{Binding ActualHeight, ElementName=AppInfoGrid, Converter={StaticResource OffsetConverter}, ConverterParameter=30, UpdateSourceTrigger=PropertyChanged}">
                     
-                    <ListView SelectionMode="Extended" VirtualizingStackPanel.IsVirtualizing="True" ItemsSource="{Binding ViewModel.AppsList}" SelectedIndex="0">
+                    <ListView x:Name="ListView" SelectionChanged="ListView_OnSelectionChanged" SelectionMode="Extended" VirtualizingStackPanel.IsVirtualizing="True" ItemsSource="{Binding ViewModel.AppsList}" SelectedIndex="0">
                         <ListView.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:App}">
                                 <ui:Card Padding="15"
@@ -286,18 +361,18 @@
                                         <StackPanel Orientation="Horizontal">
                                                 
                                             
-                                            <Border Background="Aquamarine" 
-                                                    Height="25" 
-                                                    Width="25" 
-                                                    CornerRadius="5"
-                                                    HorizontalAlignment="Left" 
-                                                    VerticalAlignment="Center"/>
+                                            <ui:Image Source="{Binding ImageSource}"
+                                                      CornerRadius="5"
+                                                      Width="25"
+                                                      Height="25"
+                                                      HorizontalAlignment="Left"
+                                                      VerticalAlignment="Center"/>
                                            
                                             <StackPanel Margin="10 0 0 0">
                                                 
                                                 
                                                 <ui:TextBlock FontTypography="BodyStrong" 
-                                                              Width="{Binding ActualWidth, ElementName=ListViewer, Converter={StaticResource DivideConverter}, ConverterParameter=2}"
+                                                              Width="{Binding ActualWidth, ElementName=ListView, Converter={StaticResource DivideConverter}, ConverterParameter=2}"
                                                               Height="20"
                                                               TextWrapping="WrapWithOverflow"
                                                               TextTrimming="CharacterEllipsis"
@@ -313,26 +388,12 @@
                                             </StackPanel>
                                             
                                         </StackPanel>
+
+                                        <ui:TextBlock VerticalAlignment="Center"
+                                                      HorizontalAlignment="Right"
+                                                      FontTypography="Caption" 
+                                                      Text="{Binding InstalledDateString, UpdateSourceTrigger=PropertyChanged}"/>
                                         
-                                        <StackPanel Orientation="Horizontal"
-                                                    HorizontalAlignment="Right">
-                                            
-                                            
-                                            
-                                            <ui:TextBlock VerticalAlignment="Center"
-                                                          FontTypography="Caption" 
-                                                          Text="{Binding AppSize, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                            <ui:TextBlock VerticalAlignment="Center"
-                                                          FontTypography="Caption" 
-                                                          Text=" | "/>
-
-                                                                  
-                                            <ui:TextBlock VerticalAlignment="Center"
-                                                          FontTypography="Caption" 
-                                                          Text="{Binding InstalledDate, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                        </StackPanel>
                                     </Grid>
                                     
                                 </ui:Card>
