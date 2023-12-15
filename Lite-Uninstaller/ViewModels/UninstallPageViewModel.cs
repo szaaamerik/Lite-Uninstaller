@@ -100,7 +100,7 @@ public partial class UninstallPageViewModel : ObservableObject, INavigationAware
     }
     
     // https://stackoverflow.com/a/58147170/22198018
-    private static void FindWin32Installs(RegistryKey regKey, List<string> keys, List<Models.App> installed)
+    private static void FindWin32Installs(RegistryKey regKey, List<string> keys, ICollection<Models.App> installed)
     {
         foreach (var key in keys)
         {
@@ -109,66 +109,84 @@ public partial class UninstallPageViewModel : ObservableObject, INavigationAware
             {
                 continue;
             }
+    
+            ProcessRegistrySubKeys(rk, installed);
+        }
+    }
 
-            foreach (var skName in rk.GetSubKeyNames())
+    private static void ProcessRegistrySubKeys(RegistryKey parentKey, ICollection<Models.App> installed)
+    {
+        foreach (var skName in parentKey.GetSubKeyNames())
+        {
+            using var sk = parentKey.OpenSubKey(skName);
+            
+            if (sk == null)
             {
-                using var sk = rk.OpenSubKey(skName);
-                try
-                {
-                    DateTime dateTime;
-                    string dateTimeString;
-
-                    try
-                    {
-                        int.TryParse(sk.GetValue("InstallDate").ToString(), out var numericDate);
-                        var year = numericDate / 10000;
-                        var month = numericDate / 100 % 100;
-                        var day = numericDate % 100;
-                        dateTime = new DateTime(year, month, day);
-                        dateTimeString = dateTime.ToShortDateString();
-                    }
-                    catch
-                    {
-                        dateTime = new DateTime(1969, 12, 1);
-                        dateTimeString = "Unknown";
-                    }
-                    
-                    BitmapSource? iconBitmapSource;
-                    
-                    try
-                    {
-                        var iconParse = (sk.GetValue("DisplayIcon") as string)?.Replace(",0", "");
-                        var appIcon = Icon.ExtractAssociatedIcon(iconParse!);
-                        iconBitmapSource = Imaging.CreateBitmapSourceFromHIcon(appIcon!.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                    }
-                    catch (Exception)
-                    {
-                        var explorerPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");
-                        var defaultExeIcon = Icon.ExtractAssociatedIcon(explorerPath);
-                        iconBitmapSource = Imaging.CreateBitmapSourceFromHIcon(defaultExeIcon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                    }
-                    
-                    var app = new Models.App
-                    {
-                        Name = Convert.ToString(sk.GetValue("DisplayName")),
-                        Publisher = sk.GetValue("Publisher") as string ?? "Unknown",
-                        Version = Convert.ToString(sk.GetValue("DisplayVersion")),
-                        InstallPath = Convert.ToString(sk.GetValue("InstallLocation")),
-                        ImageSource = iconBitmapSource,
-                        InstalledDate = dateTime,
-                        InstalledDateString = dateTimeString,
-                        Type = Models.App.AppType.Desktop
-                    };
-
-                    installed.Add(app);
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
+                continue;
+            }
+    
+            try
+            {
+                var dateTime = GetInstallDate(sk);
+                var iconBitmapSource = GetIconBitmapSource(sk);
+                AddApp(sk, installed, dateTime, iconBitmapSource);
+            }
+            catch (Exception)
+            {
+                // ignored
             }
         }
     }
+
+    private static void AddApp(RegistryKey sk, ICollection<Models.App> installed, DateTime dateTime, BitmapSource? iconBitmapSource)
+    {
+        var app = new Models.App
+        {
+            Name = Convert.ToString(sk.GetValue("DisplayName")),
+            Publisher = sk.GetValue("Publisher") as string ?? "Unknown",
+            Version = Convert.ToString(sk.GetValue("DisplayVersion")),
+            InstallPath = Convert.ToString(sk.GetValue("InstallLocation")),
+            ImageSource = iconBitmapSource,
+            InstalledDate = dateTime,
+            InstalledDateString = dateTime == new DateTime(1969, 12, 1) ? "Unknown": dateTime.ToShortDateString(),
+            Type = Models.App.AppType.Desktop
+        };
+    
+        installed.Add(app);
+    }
+    
+    private static DateTime GetInstallDate(RegistryKey sk)
+    {
+        try
+        {
+            int.TryParse(sk.GetValue("InstallDate").ToString(), out var numericDate);
+            var year = numericDate / 10000;
+            var month = numericDate / 100 % 100;
+            var day = numericDate % 100;
+            return new DateTime(year, month, day);
+        }
+        catch
+        {
+            return new DateTime(1969, 12, 1);
+        }
+    }
+    
+    private static BitmapSource GetIconBitmapSource(RegistryKey sk)
+    {
+        try
+        {
+            var iconParse = (sk.GetValue("DisplayIcon") as string)?.Replace(",0", "");
+            var appIcon = Icon.ExtractAssociatedIcon(iconParse!);
+            return Imaging.CreateBitmapSourceFromHIcon(appIcon!.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+        }
+        catch (Exception)
+        {
+            var explorerPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");
+            var defaultExeIcon = Icon.ExtractAssociatedIcon(explorerPath);
+            return Imaging.CreateBitmapSourceFromHIcon(defaultExeIcon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+        }
+    }
+
     
     public async void LoadList(TaskCompletionSource<bool>? taskCompletionSource = null, string text = "")
     {
