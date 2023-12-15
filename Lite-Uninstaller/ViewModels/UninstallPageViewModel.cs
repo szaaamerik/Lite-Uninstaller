@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Wpf.Ui;
+using Microsoft.Win32;
 using Wpf.Ui.Controls;
 
 namespace Lite_Uninstaller.ViewModels;
@@ -45,23 +45,92 @@ public partial class UninstallPageViewModel : ObservableObject, INavigationAware
 
     public void OnNavigatedFrom() { }
 
-    private void InitializeViewModel()
+    private async void InitializeViewModel()
     {
-        SetupList();
+        await SetupList();
         IsInitialized = NoBackgroundActionsRunning = true;
     }
 
-    public void SetupList()
+    public Task SetupList()
     {
-        var alphabet = GenerateRandomStrings(50, 5, 10);
-        var enumerable = alphabet.ToArray();
-        BatchedAppsList = enumerable.Select(t => new Models.App
+        return Task.Run(() =>
         {
-            Name = t,
-            Publisher = GenerateRandomString(10)
-        }).ToList();
-        
-        LoadList();
+
+            foreach (var app in GetWin32Apps())
+            {
+                BatchedAppsList.Add(app);
+            }
+            
+            LoadList();
+        });
+    }
+
+    // https://stackoverflow.com/a/58147170/22198018
+    private static List<Models.App> GetWin32Apps()
+    {
+        var installs = new List<Models.App>();
+        var keys = new List<string>
+        {
+            @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+            @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+        };
+
+        FindWin32Installs(RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64), keys, installs);
+        FindWin32Installs(RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64), keys, installs);
+
+        installs = installs.Where(app => !string.IsNullOrWhiteSpace(app.Name)).Distinct().ToList();
+        installs.Sort((app1, app2) => string.Compare(app1.Name, app2.Name, StringComparison.Ordinal));
+
+        return installs;
+    }
+    
+    // https://stackoverflow.com/a/58147170/22198018
+    private static void FindWin32Installs(RegistryKey regKey, List<string> keys, List<Models.App> installed)
+    {
+        foreach (var key in keys)
+        {
+            using var rk = regKey.OpenSubKey(key);
+            if (rk == null)
+            {
+                continue;
+            }
+
+            foreach (var skName in rk.GetSubKeyNames())
+            {
+                using var sk = rk.OpenSubKey(skName);
+                try
+                {
+                    var tryParse = int.TryParse(sk.GetValue("InstallDate").ToString(), out var numericDate);
+                    var dateTime = "Unknown";
+
+                    if (tryParse)
+                    {
+                        var year = numericDate / 10000;
+                        var month = numericDate / 100 % 100;
+                        var day = numericDate % 100;
+                        dateTime = new DateTime(year, month, day).ToShortDateString();
+                    }
+
+                    var app = new Models.App
+                    {
+                        Name = Convert.ToString(sk.GetValue("DisplayName")),
+                        Publisher = sk.GetValue("Publisher") as string ?? "Unknown",
+                        Version = Convert.ToString(sk.GetValue("DisplayVersion")),
+                        InstallPath = Convert.ToString(sk.GetValue("InstallLocation")),
+                        AppSize = sk.GetValue("EstimatedSize") is int sizeValue ? sizeValue.ToString() : "Unknown",
+                        AppSizeLong = Convert.ToInt64(sk.GetValue("EstimatedSize")),
+                        InstalledDate = dateTime,
+                        Type = Models.App.AppType.Desktop
+                    };
+
+                    installed.Add(app);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            }
+        }
     }
     
     public async void LoadList(TaskCompletionSource<bool>? taskCompletionSource = null, string text = "")
@@ -148,10 +217,10 @@ public partial class UninstallPageViewModel : ObservableObject, INavigationAware
             2 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.Name)),
             3 => new ObservableCollection<Models.App>(AppsList.OrderBy(app => app.Publisher)),
             4 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.Publisher)),
-            5 => new ObservableCollection<Models.App>(AppsList.OrderBy(app => app.AppSize)),
-            6 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.AppSize)),
-            7 => new ObservableCollection<Models.App>(AppsList.OrderBy(app => app.InstallDate)),
-            8 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.InstallDate)),
+            5 => new ObservableCollection<Models.App>(AppsList.OrderBy(app => app.AppSizeLong)),
+            6 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.AppSizeLong)),
+            7 => new ObservableCollection<Models.App>(AppsList.OrderBy(app => app.InstalledDate)),
+            8 => new ObservableCollection<Models.App>(AppsList.OrderByDescending(app => app.InstalledDate)),
             _ => AppsList
         };
 

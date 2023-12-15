@@ -44,11 +44,11 @@ public partial class UninstallPage : INavigableView<UninstallPageViewModel>
 
     private async void RefreshListWithFilter(string text = "")
     {
-        ViewModel.NoBackgroundActionsRunning = false;
+        //ViewModel.NoBackgroundActionsRunning = false;
         var taskCompletionSource = new TaskCompletionSource<bool>();
         ViewModel.LoadList(taskCompletionSource, text);
         await taskCompletionSource.Task;
         ViewModel.SortAppsList(SortByComboBox.SelectedIndex == 0 ? 0 : SortByComboBox.SelectedIndex = 0);
-        ViewModel.NoBackgroundActionsRunning = true;    
+        //ViewModel.NoBackgroundActionsRunning = true;    
     }
 }

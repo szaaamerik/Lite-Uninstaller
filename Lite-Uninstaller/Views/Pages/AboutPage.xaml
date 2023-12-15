@@ -45,7 +45,7 @@
             <ui:TextBlock FontTypography="Body"
                           Margin="0 8 0 0"
                           TextWrapping="WrapWithOverflow"
-                          Text="Throughout my research, I discovered a lack of free and open-source apps capable of fully uninstalling applications." />
+                          Text="Throughout my quick research, I discovered a lack of free and open-source apps capable of fully uninstalling applications." />
 
             <ui:TextBlock FontTypography="Body"
                           Margin="0 8 0 0"

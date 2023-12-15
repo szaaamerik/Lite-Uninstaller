@@ -222,7 +222,7 @@
                                               HorizontalAlignment="Left"
                                               VerticalAlignment="Center"/>
                                 
-                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.InstallDate}"
+                                <ui:TextBlock Text="{Binding ViewModel.SelectedApp.InstalledDate}"
                                               TextWrapping="Wrap"
                                               FontTypography="Body"
                                               HorizontalAlignment="Left"
@@ -272,7 +272,7 @@
 
             <Grid Column="1" Margin="5 10 0 25">
                 
-                <ScrollViewer MaxHeight="{Binding ActualHeight, ElementName=AppInfoGrid, Converter={StaticResource OffsetConverter}, ConverterParameter=30, UpdateSourceTrigger=PropertyChanged}">
+                <ScrollViewer x:Name="ListViewer" MaxHeight="{Binding ActualHeight, ElementName=AppInfoGrid, Converter={StaticResource OffsetConverter}, ConverterParameter=30, UpdateSourceTrigger=PropertyChanged}">
                     
                     <ListView SelectionMode="Extended" VirtualizingStackPanel.IsVirtualizing="True" ItemsSource="{Binding ViewModel.AppsList}" SelectedIndex="0">
                         <ListView.ItemTemplate>
@@ -297,6 +297,10 @@
                                                 
                                                 
                                                 <ui:TextBlock FontTypography="BodyStrong" 
+                                                              Width="{Binding ActualWidth, ElementName=ListViewer, Converter={StaticResource DivideConverter}, ConverterParameter=2}"
+                                                              Height="20"
+                                                              TextWrapping="WrapWithOverflow"
+                                                              TextTrimming="CharacterEllipsis"
                                                               Text="{Binding Name, 
                                                               UpdateSourceTrigger=PropertyChanged}"/>
                                                 
@@ -310,11 +314,25 @@
                                             
                                         </StackPanel>
                                         
-                                        <ui:TextBlock HorizontalAlignment="Right" 
-                                                      VerticalAlignment="Center"
-                                                      Margin="0,5,0,5" 
-                                                      Text="{Binding AppSizeInGigaBytes, UpdateSourceTrigger=PropertyChanged}"/>
-                                        
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Right">
+                                            
+                                            
+                                            
+                                            <ui:TextBlock VerticalAlignment="Center"
+                                                          FontTypography="Caption" 
+                                                          Text="{Binding AppSize, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                            <ui:TextBlock VerticalAlignment="Center"
+                                                          FontTypography="Caption" 
+                                                          Text=" | "/>
+
+                                                                  
+                                            <ui:TextBlock VerticalAlignment="Center"
+                                                          FontTypography="Caption" 
+                                                          Text="{Binding InstalledDate, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                        </StackPanel>
                                     </Grid>
                                     
                                 </ui:Card>

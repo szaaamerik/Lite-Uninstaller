@@ -21,8 +21,8 @@ public class App
 
     public string? ImageSource { get; init; } = "";
 
-    public DateTime InstallDate { get; init; } = new DateTime(1969, 1, 1);
+    public string? InstalledDate { get; init; } = "Unknown";
 
-    public long AppSize { get; init; } = 0L;
-    public string AppSizeInGigaBytes { get; init; } = "124 GB";
+    public string? AppSize { get; init; }
+    public long AppSizeLong { get; init; } = 0L;
 }
